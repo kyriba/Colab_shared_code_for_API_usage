@@ -107,3 +107,63 @@ def run_report(token, report):
         return result
     except:
         return
+
+
+#@title Pretty print
+#@markdown Code to pretty print a json
+def pp_json(json_thing, sort=False, indents=2):
+    res = ''
+    if type(json_thing) is str:
+        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
+    else:
+        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
+    return res
+
+
+#@title Import Data
+#@markdown Code to Import Data in one function
+def import_data (token, data, filename, task, isPayload, traceflag):
+  try:
+      if isPayload:
+        payload=data
+        files= {}
+        headers = {'Content-Type': 'text/plain;charset=utf-8'}
+        result = post_results(token, '/v1/data?fileName=test', payload, files, headers)
+        fileId = result['fileId']
+      else:
+        payload={}
+        files=[
+          ('file0', (filename, data, 'text/plain'))
+        ]
+        result = post_results(token, '/v1/data/files', payload, files)
+        fileId = result[0]['fileId']
+
+      if traceflag:
+          print (result)
+
+    # run task with file
+      result = post_results(token, '/v1/process-templates/' + task + '/run?fileIds=' + fileId, "","")
+      if traceflag:
+        print (result)
+      taskId = result[0]['taskId']
+
+    # wait until process complete
+      while True:
+        result = get_results(token, '/v1/process-templates/' + taskId + '/status')
+        js = json.loads(result)
+        status = js["status"]
+        if status == "Pending" or status == "In progress":
+            print ('.', end='')
+        else:
+            print ('\n' + status)
+        if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+            break
+            time.sleep(1) 
+      if traceflag:
+        logs = get_results(token, '/v1/tasks/' + taskId + '/details')
+        print ('\ntask details')
+        print(pp_json(logs))
+        print ('\nend task details')
+      return result
+  except:
+    return 'error'
