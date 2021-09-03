@@ -93,6 +93,7 @@ def run_report(token, report):
         taskId = result[0]['taskId']
         while True:
             result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
+            print(result)
             status = result
             if status == "Pending" or status == "In progress" or status == "Cancelling":
                 print ('.', end='')
