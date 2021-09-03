@@ -26,6 +26,8 @@ def login():
     client_id = cfg['client_id'].values[0]
     client_secret = cfg['client_secret'].values[0]
     token_endpoint = cfg['token_url'].values[0]
+
+    print('\n token url:' + token_endpoint)
     
     data = {'grant_type': 'client_credentials'}
     
