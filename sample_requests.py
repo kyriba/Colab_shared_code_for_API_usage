@@ -69,9 +69,9 @@ def get_results(token, request):
 
 #@title Post results  
 #@markdown This code allows to POST data in payload or as a stream
-def post_results(token, request, payload, files):
+def post_results(token, request, payload, files, headers={}):
     try:
-        headers = {"Authorization": "Bearer " + token}
+        headers["Authorization"] ="Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
         result = requests.post(base_url + request, headers=headers, data=payload, files = files)
@@ -93,9 +93,8 @@ def run_report(token, report):
         taskId = result[0]['taskId']
         while True:
             result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
-            json = js.loads(result)
-            status = json["status"]
-            if status == "Pending" or status == "In progress":
+            status = result
+            if status == "Pending" or status == "In progress" or status == "Cancelling":
                 print ('.', end='')
             else:
                 print ('\n' + status)
@@ -108,6 +107,26 @@ def run_report(token, report):
     except:
         return
 
+#@title Launch process
+#@markdown Code to manage process launch
+#@markdown It launchs the task and waits until completion
+def run_process(token, report):
+    try:
+        result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
+        taskId = result[0]['taskId']
+        while True:
+            result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
+            status = result
+            if status == "Pending" or status == "In progress" or status == "Cancelling":
+                print ('.', end='')
+            else:
+                print ('\n' + status)
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+                break
+                time.sleep(1)
+        return result
+    except:
+        return
 
 #@title Pretty print
 #@markdown Code to pretty print a json
@@ -150,9 +169,8 @@ def import_data (token, data, filename, task, isPayload, traceflag):
     # wait until process complete
       while True:
         result = get_results(token, '/v1/process-templates/' + taskId + '/status')
-        js = json.loads(result)
-        status = js["status"]
-        if status == "Pending" or status == "In progress":
+        status = result
+        if status == "Pending" or status == "In progress" or status == "Cancelling":
             print ('.', end='')
         else:
             print ('\n' + status)
