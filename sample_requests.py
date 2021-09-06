@@ -1,4 +1,3 @@
-
 #@title Import modules
 import requests, base64
 import re
@@ -12,15 +11,15 @@ import copy
 #@markdown This code calls the token end point with client-id and secret
 class AuthenticationError(Exception):
     pass
-    
+
 def login():
     cfg = pd.read_csv("/content/config.csv")
     client_id = cfg['client_id'].values[0]
     client_secret = cfg['client_secret'].values[0]
     token_endpoint = cfg['token_url'].values[0]
-    
+
     data = {'grant_type': 'client_credentials'}
-    
+
     userpass = client_id + ':' + client_secret
     encoded_u = base64.b64encode(userpass.encode()).decode()
     auth_header = "Basic " + encoded_u
@@ -40,10 +39,10 @@ def login():
         try:
            message = str(r.status_code)+" "+r.json()['message']
         except:
-           message = str(r.status_code)+" "+r.reason  
+           message = str(r.status_code)+" "+r.reason
         raise AuthenticationError(message)
 
-#@title Get Results 
+#@title Get Results
 #@markdown This code calls the end point to retrieve data
 def get_results(token, request):
     try:
@@ -55,11 +54,11 @@ def get_results(token, request):
           return result.text
         else:
           print(result.text)
-          return  
+          return
     except:
         return
 
-#@title Post results  
+#@title Post results
 #@markdown This code allows to POST data in payload or as a stream
 def post_results(token, request, payload, files, headers = {}):
     try:
@@ -76,18 +75,30 @@ def post_results(token, request, payload, files, headers = {}):
     except:
         return
 
+#@title Pretty print
+#@markdown Code to pretty print a json
+def pp_json(json_thing, sort=False, indents=2):
+    res = ''
+    if type(json_thing) is str:
+      print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
+    else:
+      print(js.dumps(json_thing, sort_keys=sort, indent=indents))
+    return res
+
 #@title Launch report
 #@markdown Code to manage report launch and retrieval of data in one function
 #@markdown It launches the task and waits until completion
-def run_report(token, report):
+def run_report(token, report, traceflag = False):
     try:
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
         taskId = result[0]['taskId']
+        if traceflag:
+            print('\n Run task ' + str(taskId))
         while True:
             result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
             json = js.loads(result)
             status = json["status"]
-            if status == "Pending" or status == "In progress":
+            if status == "Pending" or status == "In progress" or status == "Cancelling":
                 print ('.', end='')
             else:
                 print ('\n' + status)
@@ -96,20 +107,44 @@ def run_report(token, report):
                 time.sleep(1)
         print('\n')
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
+        if traceflag:
+          logs = get_results(token, '/v1/tasks/' + taskId + '/details')
+          print(logs)
+          print ('\ntask details')
+          print(pp_json(logs, False, 2))
+          print ('\nend task details\n')
         return result
     except:
         return
 
-
-#@title Pretty print
-#@markdown Code to pretty print a json
-def pp_json(json_thing, sort=False, indents=2):
-    res = ''
-    if type(json_thing) is str:
-        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
-    else:
-        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
-    return res
+#@title Launch process
+#@markdown Code to manage process launch
+#@markdown It launchs the task and waits until completion
+def run_process(token, report, traceflag = False):
+    try:
+        result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
+        taskId = result[0]['taskId']
+        if traceflag:
+            print('\n Run task ' + str(taskId))
+        while True:
+            result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
+            json = js.loads(result)
+            status = json["status"]
+            if status == "Pending" or status == "In progress" or status == "Cancelling":
+                print ('.', end='')
+            else:
+                print ('\n' + status)
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+                break
+                time.sleep(1)
+        if traceflag:
+            logs = get_results(token, '/v1/tasks/' + taskId + '/details')
+            print ('\ntask details')
+            print(pp_json(logs))
+            print ('\nend task details\n')
+        return result
+    except:
+        return
 
 
 #@title Import Data
@@ -144,18 +179,18 @@ def import_data (token, data, filename, task, isPayload, traceflag):
         result = get_results(token, '/v1/process-templates/' + taskId + '/status')
         json = js.loads(result)
         status = json["status"]
-        if status == "Pending" or status == "In progress":
+        if status == "Pending" or status == "In progress" or status == "Cancelling":
             print ('.', end='')
         else:
             print ('\n' + status)
         if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
-            time.sleep(1) 
+            time.sleep(1)
       if traceflag:
         logs = get_results(token, '/v1/tasks/' + taskId + '/details')
         print ('\ntask details')
         print(pp_json(logs))
-        print ('\nend task details')
+        print ('\nend task details\n')
       return result
   except:
     return 'error'

@@ -13,7 +13,7 @@ Python module can be used for writing API Colab samples. It consists of methods 
 
 ```python 
 from subprocess import getstatusoutput
-servicePack = "21SP6" #@param ['DEMO', 'SP7','21SP6'] {allow-input: true}
+servicePack = "DEMO" #@param ['DEMO', 'SP7','21SP6'] {allow-input: true}
 
 if servicePack == 'DEMO':
   branch = 'main'
@@ -23,7 +23,10 @@ print(branch)
 rm = getstatusoutput("rm sample_requests -rf ") 
 clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/OlhaLevko/sample_requests.git") 
 import importlib
-importlib.reload(sample_requests)
+try:  
+  importlib.reload(sample_requests)
+except:
+  print()
 from sample_requests import sample_requests
 ```
 
