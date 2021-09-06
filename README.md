@@ -1,4 +1,4 @@
-# dev-portal-Two-ways-of-exporting-Third-Parties-sample
+# sample_requests
 
 
 
@@ -12,8 +12,21 @@ Python module can be used for writing API Colab samples. It consists of methods 
 1.  Import the module within the code in Colab sample. It can be done by next way:
 
 ```python 
-from subprocess import getoutput
-getoutput("git clone -l -s https://github.com/OlhaLevko/sample_requests.git")
+from subprocess import getstatusoutput
+servicePack = "DEMO" #@param ['DEMO', 'SP7','21SP6'] {allow-input: true}
+
+if servicePack == 'DEMO':
+  branch = 'main'
+else:
+  branch = servicePack
+print(branch)
+rm = getstatusoutput("rm sample_requests -rf ") 
+clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/OlhaLevko/sample_requests.git") 
+import importlib
+try:  
+  importlib.reload(sample_requests)
+except:
+  print()
 from sample_requests import sample_requests
 ```
 
