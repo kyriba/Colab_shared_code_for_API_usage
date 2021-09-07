@@ -128,7 +128,7 @@ def run_process(token, report, traceflag = False):
 
 #@title Import Data
 #@markdown Code to Import Data in one function
-def import_data (token, data, filename, task, isPayload, traceflag):
+def import_data (token, data, filename, task, isPayload, traceflag = False):
   try:
       if isPayload:
         payload=data
