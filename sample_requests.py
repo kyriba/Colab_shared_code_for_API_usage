@@ -75,16 +75,6 @@ def post_results(token, request, payload, files, headers = {}):
     except:
         return
 
-#@title Pretty print
-#@markdown Code to pretty print a json
-def pp_json(json_thing, sort=False, indents=2):
-    res = ''
-    if type(json_thing) is str:
-      print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
-    else:
-      print(js.dumps(json_thing, sort_keys=sort, indent=indents))
-    return res
-
 #@title Launch report
 #@markdown Code to manage report launch and retrieval of data in one function
 #@markdown It launches the task and waits until completion
@@ -107,12 +97,6 @@ def run_report(token, report, traceflag = False):
                 time.sleep(1)
         print('\n')
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
-        if traceflag:
-          logs = get_results(token, '/v1/tasks/' + taskId + '/details')
-          print(logs)
-          print ('\ntask details')
-          print(pp_json(logs, False, 2))
-          print ('\nend task details\n')
         return result
     except:
         return
@@ -137,11 +121,6 @@ def run_process(token, report, traceflag = False):
             if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 break
                 time.sleep(1)
-        if traceflag:
-            logs = get_results(token, '/v1/tasks/' + taskId + '/details')
-            print ('\ntask details')
-            print(pp_json(logs))
-            print ('\nend task details\n')
         return result
     except:
         return
@@ -186,11 +165,16 @@ def import_data (token, data, filename, task, isPayload, traceflag):
         if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
             time.sleep(1)
-      if traceflag:
-        logs = get_results(token, '/v1/tasks/' + taskId + '/details')
-        print ('\ntask details')
-        print(pp_json(logs))
-        print ('\nend task details\n')
       return result
   except:
     return 'error'
+
+#@title Pretty print
+#@markdown Code to pretty print a json
+def pp_json(json_thing, sort=False, indents=2):
+    res = ''
+    if type(json_thing) is str:
+      print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
+    else:
+      print(js.dumps(json_thing, sort_keys=sort, indent=indents))
+    return res
