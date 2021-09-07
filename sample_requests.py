@@ -81,6 +81,7 @@ def post_results(token, request, payload, files, headers = {}):
 def run_report(token, report, traceflag = False):
     try:
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
+        print(result)
         taskId = result[0]['taskId']
         if traceflag:
             print('\n Run task ' + str(taskId))
@@ -97,6 +98,11 @@ def run_report(token, report, traceflag = False):
                 time.sleep(1)
         print('\n')
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
+        if traceflag:
+          logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+          print ('\ntask details')
+          print(pp_json(logs))
+          print ('\nend task details')
         return result
     except:
         return
@@ -121,6 +127,11 @@ def run_process(token, report, traceflag = False):
             if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 break
                 time.sleep(1)
+        if traceflag:
+          logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+          print ('\ntask details')
+          print(pp_json(logs))
+          print ('\nend task details')
         return result
     except:
         return
@@ -128,7 +139,7 @@ def run_process(token, report, traceflag = False):
 
 #@title Import Data
 #@markdown Code to Import Data in one function
-def import_data (token, data, filename, task, isPayload, traceflag):
+def import_data (token, data, filename, task, isPayload, traceflag = False):
   try:
       if isPayload:
         payload=data
@@ -165,6 +176,11 @@ def import_data (token, data, filename, task, isPayload, traceflag):
         if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
             time.sleep(1)
+      if traceflag:
+        logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+        print ('\ntask details')
+        print(pp_json(logs))
+        print ('\nend task details')
       return result
   except:
     return 'error'
@@ -177,4 +193,3 @@ def pp_json(json_thing, sort=False, indents=2):
       print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
     else:
       print(js.dumps(json_thing, sort_keys=sort, indent=indents))
-    return res
