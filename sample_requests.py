@@ -81,7 +81,6 @@ def post_results(token, request, payload, files, headers = {}):
 def run_report(token, report, traceflag = False):
     try:
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
-        print(result)
         taskId = result[0]['taskId']
         if traceflag:
             print('\n Run task ' + str(taskId))
@@ -135,7 +134,6 @@ def run_process(token, report, traceflag = False):
         return result
     except:
         return
-
 
 #@title Import Data
 #@markdown Code to Import Data in one function
@@ -193,3 +191,4 @@ def pp_json(json_thing, sort=False, indents=2):
       print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
     else:
       print(js.dumps(json_thing, sort_keys=sort, indent=indents))
+    return res
