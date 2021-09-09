@@ -119,17 +119,6 @@ def run_process(token, report):
     except:
         return
 
-#@title Pretty print
-#@markdown Code to pretty print a json
-def pp_json(json_thing, sort=False, indents=2):
-    res = ''
-    if type(json_thing) is str:
-        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
-    else:
-        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
-    return res
-
-
 #@title Import Data
 #@markdown Code to Import Data in one function
 def import_data (token, data, filename, task, isPayload, traceflag):
@@ -176,3 +165,13 @@ def import_data (token, data, filename, task, isPayload, traceflag):
       return result
   except:
     return 'error'
+
+#@title Pretty print
+#@markdown Code to pretty print a json
+def pp_json(json_thing, sort=False, indents=2):
+    res = ''
+    if type(json_thing) is str:
+        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
+    else:
+        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
+    return res
