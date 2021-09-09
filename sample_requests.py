@@ -58,11 +58,11 @@ def get_results(token, request):
     except:
         return
 
-#@title Post results  
+#@title Post results
 #@markdown This code allows to POST data in payload or as a stream
-def post_results(token, request, payload, files, headers={}):
+def post_results(token, request, payload, files, headers = {}):
     try:
-        headers["Authorization"] ="Bearer " + token
+        headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
         result = requests.post(base_url + request, headers=headers, data=payload, files = files)
@@ -77,11 +77,13 @@ def post_results(token, request, payload, files, headers={}):
 
 #@title Launch report
 #@markdown Code to manage report launch and retrieval of data in one function
-#@markdown It launchs the task and waits until completion
-def run_report(token, report):
+#@markdown It launches the task and waits until completion
+def run_report(token, report, traceflag = False):
     try:
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
         taskId = result[0]['taskId']
+        if traceflag:
+            print('\n Run task ' + str(taskId))
         while True:
             result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
             status = result
@@ -101,10 +103,12 @@ def run_report(token, report):
 #@title Launch process
 #@markdown Code to manage process launch
 #@markdown It launchs the task and waits until completion
-def run_process(token, report):
+def run_process(token, report, traceflag = False):
     try:
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
         taskId = result[0]['taskId']
+        if traceflag:
+            print('\n Run task ' + str(taskId))
         while True:
             result = get_results(token, '/v1/process-templates/'+ taskId +'/status')
             status = result
@@ -121,7 +125,7 @@ def run_process(token, report):
 
 #@title Import Data
 #@markdown Code to Import Data in one function
-def import_data (token, data, filename, task, isPayload, traceflag):
+def import_data (token, data, filename, task, isPayload, traceflag = False):
   try:
       if isPayload:
         payload=data
@@ -137,8 +141,8 @@ def import_data (token, data, filename, task, isPayload, traceflag):
         result = post_results(token, '/v1/data/files', payload, files)
         fileId = result[0]['fileId']
 
-      if traceflag:
-          print (result)
+        if traceflag:
+            print (result)
 
     # run task with file
       result = post_results(token, '/v1/process-templates/' + task + '/run?fileIds=' + fileId, "","")
@@ -157,11 +161,6 @@ def import_data (token, data, filename, task, isPayload, traceflag):
         if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
             time.sleep(1) 
-      if traceflag:
-        logs = get_results(token, '/v1/tasks/' + taskId + '/details')
-        print ('\ntask details')
-        print(pp_json(logs))
-        print ('\nend task details')
       return result
   except:
     return 'error'
@@ -171,7 +170,7 @@ def import_data (token, data, filename, task, isPayload, traceflag):
 def pp_json(json_thing, sort=False, indents=2):
     res = ''
     if type(json_thing) is str:
-        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
+      print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
     else:
-        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
+      print(js.dumps(json_thing, sort_keys=sort, indent=indents))
     return res
