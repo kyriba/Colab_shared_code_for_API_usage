@@ -1,4 +1,4 @@
-# sample_requests
+# Colab-shared-code-for-API-usage.git
 
 
 
@@ -21,7 +21,7 @@ else:
   branch = servicePack
 print(branch)
 rm = getstatusoutput("rm sample_requests -rf ") 
-clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/OlhaLevko/sample_requests.git") 
+clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/kyriba/Colab-shared-code-for-API-usage.git") 
 import importlib
 try:  
   importlib.reload(sample_requests)
