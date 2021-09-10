@@ -28,7 +28,7 @@ try:
   importlib.reload(sample_requests)
 except:
   print()
-from sample_requests import sample_requests
+from Colab_shared_code_for_API_usage import sample_requests
 ```
 
 
