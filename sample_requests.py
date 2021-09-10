@@ -133,7 +133,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         payload=data
         files= {}
         headers = {'Content-Type': 'text/plain;charset=utf-8'}
-        result = post_results(token, '/v1/data?fileName=test', payload, files, headers)
+        result = post_results(token, '/v1/data?fileName=' + filename, payload, files, headers)
         fileId = result['fileId']
       else:
         payload={}
