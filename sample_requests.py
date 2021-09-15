@@ -92,11 +92,16 @@ def run_report(token, report, traceflag = False):
                 print ('.', end='')
             else:
                 print ('\n' + status)
-            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
                 break
                 time.sleep(1)
         print('\n')
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
+        if traceflag:
+          logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+          print ('\ntask details')
+          print(pp_json(logs))
+          print ('\nend task details')
         return result
     except:
         return
@@ -118,9 +123,14 @@ def run_process(token, report, traceflag = False):
                 print ('.', end='')
             else:
                 print ('\n' + status)
-            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
                 break
                 time.sleep(1)
+        if traceflag:
+          logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+          print ('\ntask details')
+          print(pp_json(logs))
+          print ('\nend task details')
         return result
     except:
         return
@@ -161,9 +171,14 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
             print ('.', end='')
         else:
             print ('\n' + status)
-        if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+        if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
             break
             time.sleep(1)
+      if traceflag:
+        logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
+        print ('\ntask details')
+        print(pp_json(logs))
+        print ('\nend task details')
       return result
   except:
     return 'error'
