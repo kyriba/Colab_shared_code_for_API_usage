@@ -22,7 +22,7 @@ else:
   branch = servicePack
 print(branch)
 rm = getstatusoutput("rm sample_requests -rf ") 
-clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/kyriba/Colab-shared-code-for-API-usage.git") 
+clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/kyriba/Colab_shared_code_for_API_usage.git") 
 import importlib
 try:  
   importlib.reload(sample_requests)
