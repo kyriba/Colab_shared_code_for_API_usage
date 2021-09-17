@@ -92,7 +92,7 @@ def run_report(token, report, traceflag = False):
                 print ('.', end='')
             else:
                 print ('\n' + status)
-            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 break
                 time.sleep(1)
         print('\n')
@@ -123,7 +123,7 @@ def run_process(token, report, traceflag = False):
                 print ('.', end='')
             else:
                 print ('\n' + status)
-            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
+            if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 break
                 time.sleep(1)
         if traceflag:
@@ -171,7 +171,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
             print ('.', end='')
         else:
             print ('\n' + status)
-        if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled" or status == "Complete no result":
+        if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
             time.sleep(1)
       if traceflag:
