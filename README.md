@@ -21,7 +21,7 @@ if servicePack == 'DEMO':
 else:
   branch = servicePack
 print(branch)
-rm = getstatusoutput("rm sample_requests -rf ") 
+rm = getstatusoutput("rm Colab_shared_code_for_API_usage -rf ") 
 clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/kyriba/Colab_shared_code_for_API_usage.git") 
 import importlib
 try:  
