@@ -75,6 +75,41 @@ def post_results(token, request, payload, files, headers = {}):
     except:
         return
 
+
+#@title Put results
+#@markdown This code allows to PUT data in payload or as a stream
+def put_results(token, request, payload, files, headers = {}):
+    try:
+        headers["Authorization"] = "Bearer " + token
+        cfg = pd.read_csv("config.csv")
+        base_url = cfg['base_url'].values[0]
+        result = requests.put(base_url + request, headers=headers, data=payload, files = files)
+        if 200 <= result.status_code < 300:
+          json_data = js.loads(result.text)
+          return json_data
+        else:
+          print(result.text)
+          return
+    except:
+        return
+
+#@title Delete Results
+#@markdown This code calls the end point to DELETE data
+def delete_results(token, request, headers = {}):
+    try:
+        headers["Authorization"] = "Bearer " + token
+        cfg = pd.read_csv("config.csv")
+        base_url = cfg['base_url'].values[0]
+        result = requests.delete(base_url + request, headers=headers)
+        if 200 <= result.status_code < 300:
+          json_data = js.loads(result.text)
+          return json_data
+        else:
+          print(result.text)
+          return
+    except:
+        return
+
 #@title Launch report
 #@markdown Code to manage report launch and retrieval of data in one function
 #@markdown It launches the task and waits until completion
