@@ -14,7 +14,7 @@ Python module can be used for writing API Colab samples. It consists of methods 
 ```python 
 #@title Select **servicePack** the Sample should run
 from subprocess import getstatusoutput
-servicePack = "DEMO" #@param ['DEMO', '21SP9', '21SP8', '21SP7','21SP6'] {allow-input: true}
+servicePack = "DEMO" #@param ['DEMO', '22SP1', '21SP11', '21SP10', '21SP9', '21SP8', '21SP7','21SP6'] {allow-input: true}
 
 if servicePack == 'DEMO':
   branch = 'main'
@@ -24,6 +24,15 @@ print(branch)
 rm = getstatusoutput("rm Colab_shared_code_for_API_usage -rf ") 
 clone = getstatusoutput("git clone -l -s --branch " +  branch + " https://github.com/kyriba/Colab_shared_code_for_API_usage.git") 
 import importlib
+
+enableFormatterDF = True #@param {type:"boolean"}
+from google.colab import data_table
+
+if enableFormatterDF is True:
+  data_table.enable_dataframe_formatter()
+else:
+  data_table.disable_dataframe_formatter()
+
 try:  
   importlib.reload(sample_requests)
 except:
