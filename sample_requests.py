@@ -56,6 +56,7 @@ def get_results(token, request):
           print(result.text)
           return  
     except:
+        print(result)
         return
 
 #@title Post results
@@ -98,6 +99,7 @@ def run_report(token, report, traceflag = False):
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
         return result
     except:
+        print(result)
         return
 
 #@title Launch process
@@ -121,6 +123,7 @@ def run_process(token, report, traceflag = False):
                 time.sleep(1)
         return result
     except:
+        print(result)
         return
 
 #@title Import Data
@@ -163,6 +166,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
             time.sleep(1) 
       return result
   except:
+    print(result)
     return 'error'
 
 #@title Pretty print
