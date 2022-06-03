@@ -56,6 +56,7 @@ def get_results(token, request):
           print(result.text)
           return
     except:
+        print(result)
         return
 
 #@title Post results
@@ -73,6 +74,7 @@ def post_results(token, request, payload, files, headers = {}):
           print(result.text)
           return
     except:
+        print(result)
         return
 
 #@title Launch report
@@ -104,6 +106,7 @@ def run_report(token, report, traceflag = False):
           print ('\nend task details')
         return result
     except:
+        print(result)
         return
 
 #@title Launch process
@@ -133,6 +136,7 @@ def run_process(token, report, traceflag = False):
           print ('\nend task details')
         return result
     except:
+        print(result)
         return
 
 #@title Import Data
@@ -181,6 +185,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print ('\nend task details')
       return result
   except:
+    print(result)
     return 'error'
 
 #@title Pretty print
