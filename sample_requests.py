@@ -48,7 +48,7 @@ def login():
         raise AuthenticationError(message)
 
 class Token:
-  token = login()
+  token = ''
   def __init__(self):
     raise Exception("Cannot create an istance")
 
@@ -58,6 +58,8 @@ class Token:
 
   @staticmethod
   def getToken():
+    if Token.token == '':
+       Token.updateToken()
     return Token.token
 
 #@title Get Results
