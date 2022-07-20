@@ -38,7 +38,7 @@ try:
 except:
   print()
 from Colab_shared_code_for_API_usage import sample_requests
-from sample_requests import Token
+from Colab_shared_code_for_API_usage.sample_requests import Token
 ```
 
 
