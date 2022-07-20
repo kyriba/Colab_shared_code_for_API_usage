@@ -12,6 +12,11 @@ import copy
 class AuthenticationError(Exception):
     pass
 
+class UnathorizedError(Exception):
+   pass
+
+
+
 def login():
     cfg = pd.read_csv("/content/config.csv")
     client_id = cfg['client_id'].values[0]
@@ -42,6 +47,19 @@ def login():
            message = str(r.status_code)+" "+r.reason
         raise AuthenticationError(message)
 
+class Token:
+  token = login()
+  def __init__(self):
+    raise Exception("Cannot create an istance")
+
+  @staticmethod
+  def updateToken():
+    Token.token = login()
+
+  @staticmethod
+  def getToken():
+    return Token.token
+
 #@title Get Results
 #@markdown This code calls the end point to retrieve data
 def get_results(token, request):
@@ -52,9 +70,14 @@ def get_results(token, request):
         result = requests.get(base_url + request, headers=headers)
         if 200 <= result.status_code < 300:
           return result.text
+        elif result.status_code == 401:
+          print(result.text)
+          raise UnathorizedError()
         else:
           print(result.text)
           return
+    except UnathorizedError:
+        raise
     except:
         print(result)
         return
@@ -70,9 +93,14 @@ def post_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          print(result.text)
+          raise UnathorizedError()
         else:
           print(result.text)
           return
+    except UnathorizedError:
+        raise
     except:
         print(result)
         return
@@ -89,9 +117,14 @@ def put_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          print(result.text)
+          raise UnathorizedError()
         else:
           print(result.text)
           return
+    except UnathorizedError:
+        raise
     except:
         print(result)
         return
@@ -107,9 +140,14 @@ def delete_results(token, request, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          print(result.text)
+          raise UnathorizedError()
         else:
           print(result.text)
           return
+    except UnathorizedError:
+        raise
     except:
         print(result)
         return
@@ -142,6 +180,10 @@ def run_report(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
+    except UnathorizedError:
+           print('new token: ')
+           Token.updateToken()
+           run_report(Token.getToken(), report)
     except:
         print(result)
         return
@@ -172,6 +214,10 @@ def run_process(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
+    except UnathorizedError:
+           print('new token: ')
+           Token.updateToken()
+           run_process(Token.getToken(), report)
     except:
         print(result)
         return
@@ -221,6 +267,10 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print(pp_json(logs))
         print ('\nend task details')
       return result
+  except UnathorizedError:
+           print('new token: ')
+           Token.updateToken()
+           import_data(Token.getToken(), report)
   except:
     return 'error'
 

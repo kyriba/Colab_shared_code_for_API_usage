@@ -38,11 +38,12 @@ try:
 except:
   print()
 from Colab_shared_code_for_API_usage import sample_requests
+from sample_requests import Token
 ```
 
 
-2. Use methods inside cell by calling this module name. For example:
+2. Use methods inside cell by calling this module name and use Token.getToken() expresion to put token parameter. For example:
 
 ```python 
-result = sample_requests.run_report(token,'ProcessTemplate')
+result = sample_requests.run_report(Token.getToken(),'ProcessTemplate')
 ```
