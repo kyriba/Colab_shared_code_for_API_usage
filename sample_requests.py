@@ -12,7 +12,7 @@ import copy
 class AuthenticationError(Exception):
     pass
 
-class UnathorizedError(Exception):
+class InvalidTokenError(Exception):
    pass
 
 
@@ -74,11 +74,13 @@ def get_results(token, request):
           return result.text
         elif result.status_code == 401:
           print(result.text)
-          raise UnathorizedError()
+          err = js.load(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            raise InvalidTokenError()
         else:
           print(result.text)
           return
-    except UnathorizedError:
+    except InvalidTokenError:
         raise
     except:
         print(result)
@@ -95,13 +97,15 @@ def post_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401:
+        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
           print(result.text)
-          raise UnathorizedError()
+          err = js.load(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            raise InvalidTokenError()
         else:
           print(result.text)
           return
-    except UnathorizedError:
+    except InvalidTokenError:
         raise
     except:
         print(result)
@@ -119,13 +123,15 @@ def put_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401:
+        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
           print(result.text)
-          raise UnathorizedError()
+          err = js.load(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            raise InvalidTokenError()
         else:
           print(result.text)
           return
-    except UnathorizedError:
+    except InvalidTokenError:
         raise
     except:
         print(result)
@@ -142,13 +148,15 @@ def delete_results(token, request, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401:
+        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
           print(result.text)
-          raise UnathorizedError()
+          err = js.load(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            raise InvalidTokenError()
         else:
           print(result.text)
           return
-    except UnathorizedError:
+    except InvalidTokenError:
         raise
     except:
         print(result)
@@ -182,7 +190,7 @@ def run_report(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except UnathorizedError:
+    except UnauthorizedError:
            print('new token: ')
            Token.updateToken()
            run_report(Token.getToken(), report)
@@ -216,7 +224,7 @@ def run_process(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except UnathorizedError:
+    except UnauthorizedError:
            print('new token: ')
            Token.updateToken()
            run_process(Token.getToken(), report)
@@ -269,10 +277,10 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print(pp_json(logs))
         print ('\nend task details')
       return result
-  except UnathorizedError:
+  except UnauthorizedError:
            print('new token: ')
            Token.updateToken()
-           import_data(Token.getToken(), report)
+           import_data(Token.getToken(), data, filename, task, isPayload, traceflag)
   except:
     return 'error'
 
