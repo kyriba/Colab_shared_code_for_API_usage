@@ -190,7 +190,7 @@ def run_report(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except UnauthorizedError:
+    except InvalidTokenError:
            print('new token: ')
            Token.updateToken()
            run_report(Token.getToken(), report)
@@ -224,7 +224,7 @@ def run_process(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except UnauthorizedError:
+    except InvalidTokenError:
            print('new token: ')
            Token.updateToken()
            run_process(Token.getToken(), report)
@@ -277,7 +277,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print(pp_json(logs))
         print ('\nend task details')
       return result
-  except UnauthorizedError:
+  except InvalidTokenError:
            print('new token: ')
            Token.updateToken()
            import_data(Token.getToken(), data, filename, task, isPayload, traceflag)
