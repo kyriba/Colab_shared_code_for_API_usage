@@ -74,7 +74,7 @@ def get_results(token, request):
           return result.text
         elif result.status_code == 401:
           print(result.text)
-          err = js.load(result.text)
+          err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             raise InvalidTokenError()
         else:
@@ -97,9 +97,9 @@ def post_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
+        elif result.status_code == 401:
           print(result.text)
-          err = js.load(result.text)
+          err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             raise InvalidTokenError()
         else:
@@ -123,9 +123,9 @@ def put_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
+        elif result.status_code == 401:
           print(result.text)
-          err = js.load(result.text)
+          err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             raise InvalidTokenError()
         else:
@@ -148,9 +148,9 @@ def delete_results(token, request, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
-        elif result.status_code == 401 and js.loads(result.text)['error'] == 'invalid_token':
+        elif result.status_code == 401:
           print(result.text)
-          err = js.load(result.text)
+          err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             raise InvalidTokenError()
         else:
