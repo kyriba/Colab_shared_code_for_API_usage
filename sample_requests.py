@@ -136,8 +136,8 @@ class TaskResponse:
 #@markdown Code to manage report launch and retrieval of data in one function
 #@markdown It launches the task and waits until completion.
 #@markdown If task retuns result as binary it should be return_type set as 'binary'.
-@markdown If extended_response is set True the result will be returned as TaskResponse object otherwise
-@markdown as text response body.
+#@markdown If extended_response is set True the result will be returned as TaskResponse object otherwise
+#@markdown as text response body.
 def run_report(token, report, traceflag = False, return_type = 'text', extended_response = False):
     try:
         task_response = TaskResponse()
