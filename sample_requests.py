@@ -74,7 +74,7 @@ def get_results(token, request):
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             Token.updateToken()
-            get_results(Token.getToken(), request)
+            return get_results(Token.getToken(), request)
           else:
             print(result.text)
         else:
@@ -100,7 +100,7 @@ def post_results(token, request, payload, files, headers = {}):
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             Token.updateToken()
-            post_results(Token.getToken(), request, payload, files, headers)
+            return post_results(Token.getToken(), request, payload, files, headers)
           else:
             print(result.text)
         else:
@@ -127,7 +127,7 @@ def put_results(token, request, payload, files, headers = {}):
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             Token.updateToken()
-            put_results(Token.getToken(), request, payload, files, headers)
+            return put_results(Token.getToken(), request, payload, files, headers)
           else:
             print(result.text)
         else:
@@ -153,7 +153,7 @@ def delete_results(token, request, headers = {}):
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
             Token.updateToken()
-            delete_results(Token.getToken(), headers)
+            return delete_results(Token.getToken(), headers)
           else:
             print(result.text)
         else:
