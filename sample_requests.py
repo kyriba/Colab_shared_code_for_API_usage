@@ -12,9 +12,6 @@ import copy
 class AuthenticationError(Exception):
     pass
 
-class InvalidTokenError(Exception):
-   pass
-
 
 
 def login():
@@ -38,7 +35,7 @@ def login():
         response = r.json()
         token = response['access_token']
         # Put token in the session
-        print(token)
+        print('token ' + token)
         return token
     except Exception as err:
         try:
@@ -73,15 +70,15 @@ def get_results(token, request):
         if 200 <= result.status_code < 300:
           return result.text
         elif result.status_code == 401:
-          print(result.text)
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
-            raise InvalidTokenError()
+            Token.updateToken()
+            get_results(Token.getToken(), request)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
-    except InvalidTokenError:
-        raise
     except:
         print(result)
         return
@@ -98,15 +95,15 @@ def post_results(token, request, payload, files, headers = {}):
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
-          print(result.text)
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
-            raise InvalidTokenError()
+            Token.updateToken()
+            post_results(Token.getToken(), request, payload, files, headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
-    except InvalidTokenError:
-        raise
     except:
         print(result)
         return
@@ -124,15 +121,15 @@ def put_results(token, request, payload, files, headers = {}):
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
-          print(result.text)
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
-            raise InvalidTokenError()
+            Token.updateToken()
+            put_results(Token.getToken(), request, payload, files, headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
-    except InvalidTokenError:
-        raise
     except:
         print(result)
         return
@@ -149,15 +146,15 @@ def delete_results(token, request, headers = {}):
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
-          print(result.text)
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
-            raise InvalidTokenError()
+            Token.updateToken()
+            delete_results(Token.getToken(), headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
-    except InvalidTokenError:
-        raise
     except:
         print(result)
         return
@@ -190,10 +187,6 @@ def run_report(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except InvalidTokenError:
-           print('new token: ')
-           Token.updateToken()
-           run_report(Token.getToken(), report)
     except:
         print(result)
         return
@@ -224,10 +217,6 @@ def run_process(token, report, traceflag = False):
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except InvalidTokenError:
-           print('new token: ')
-           Token.updateToken()
-           run_process(Token.getToken(), report)
     except:
         print(result)
         return
@@ -277,10 +266,6 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print(pp_json(logs))
         print ('\nend task details')
       return result
-  except InvalidTokenError:
-           print('new token: ')
-           Token.updateToken()
-           import_data(Token.getToken(), data, filename, task, isPayload, traceflag)
   except:
     return 'error'
 
