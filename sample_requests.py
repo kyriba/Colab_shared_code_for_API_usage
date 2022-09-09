@@ -63,6 +63,7 @@ class Token:
 #@markdown This code calls the end point to retrieve data
 def get_results(token, request):
     try:
+        token = Token.getToken()
         headers = {"Authorization": "Bearer " + token}
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -87,6 +88,7 @@ def get_results(token, request):
 #@markdown This code allows to POST data in payload or as a stream
 def post_results(token, request, payload, files, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -113,6 +115,7 @@ def post_results(token, request, payload, files, headers = {}):
 #@markdown This code allows to PUT data in payload or as a stream
 def put_results(token, request, payload, files, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -138,6 +141,7 @@ def put_results(token, request, payload, files, headers = {}):
 #@markdown This code calls the end point to DELETE data
 def delete_results(token, request, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
