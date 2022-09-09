@@ -14,7 +14,7 @@ Python module can be used for writing API Colab samples. It consists of methods 
 ```python 
 #@title Select **servicePack** the Sample should run
 from subprocess import getstatusoutput
-servicePack = "DEMO" #@param ['DEMO', '22SP4, '22SP3, '22SP2', '22SP1', '21SP11', '21SP10', '21SP9', '21SP8', '21SP7','21SP6'] {allow-input: true}
+servicePack = "DEMO" #@param ['DEMO', '22SP9', '22SP8', '22SP7'] {allow-input: true}
 
 if servicePack == 'DEMO':
   branch = 'main'
