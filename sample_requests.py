@@ -206,7 +206,8 @@ def run_process(token, report, traceflag = False):
 
 #@title Import Data
 #@markdown Code to Import Data in one function
-def import_data (token, data, filename, task, isPayload, traceflag = False):
+def import_data (token, data, filename, task, isPayload, traceflag = False, extended_response = False):
+  task_response = TaskResponse()
   try:
       if isPayload:
         payload=data
@@ -214,6 +215,8 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         headers = {'Content-Type': 'text/plain;charset=utf-8'}
         result = post_results(token, '/v1/data?fileName=' + filename, payload, files, headers)
         fileId = result['fileId']
+        task_response.fileId = fileId
+
       else:
         payload={}
         files=[
@@ -221,6 +224,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         ]
         result = post_results(token, '/v1/data/files', payload, files)
         fileId = result[0]['fileId']
+        task_response.fileId = fileId
 
       if traceflag:
           print (result)
@@ -248,7 +252,12 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
         print ('\ntask details')
         print(pp_json(logs))
         print ('\nend task details')
-      return result
+      task_response.taskId = taskId
+      task_response.content = result
+      if extended_response:
+        return task_response
+      else:
+        return result
   except:
     return 'error'
 
