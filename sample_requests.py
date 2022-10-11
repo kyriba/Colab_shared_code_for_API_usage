@@ -60,8 +60,11 @@ class Token:
     return Token.token
 
 #@title Get Results
-#@markdown This code calls the end point to retrieve data
-def get_results(token, request):
+#@markdown This code calls the end point to retrieve data.
+#@markdown A result will by return as text response body when return_type is not set up or is 'text'. When return_type set as 'binary'
+#@markdown the result will be in binary representation.
+
+def get_results(token, request, return_type = 'text'):
     try:
         token = Token.getToken()
         headers = {"Authorization": "Bearer " + token}
@@ -69,7 +72,13 @@ def get_results(token, request):
         base_url = cfg['base_url'].values[0]
         result = requests.get(base_url + request, headers=headers)
         if 200 <= result.status_code < 300:
-          return result.text
+          if return_type == 'text':
+            return result.text
+          elif return_type == 'binary':
+            return result.content
+          else:
+            print("return_type is incorrect")
+            return
         elif result.status_code == 401:
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
@@ -163,11 +172,24 @@ def delete_results(token, request, headers = {}):
         print(result)
         return
 
+
+class TaskResponse:
+  status = ''
+  taskId = ''
+  content = ''
+  def __init__(self):
+    pass
+
+
 #@title Launch report
 #@markdown Code to manage report launch and retrieval of data in one function
-#@markdown It launches the task and waits until completion
-def run_report(token, report, traceflag = False):
+#@markdown It launches the task and waits until completion.
+#@markdown If task retuns result as binary it should be return_type set as 'binary'.
+#@markdown If extended_response is set True the result will be returned as TaskResponse object otherwise
+#@markdown as text response body.
+def run_report(token, report, traceflag = False, return_type = 'text', extended_response = False):
     try:
+        task_response = TaskResponse()
         result = post_results(token, '/v1/process-templates/'+ report +'/run',"","")
         taskId = result[0]['taskId']
         if traceflag:
@@ -181,16 +203,22 @@ def run_report(token, report, traceflag = False):
             else:
                 print ('\n' + status)
             if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
+                task_response.status = status
                 break
                 time.sleep(1)
         print('\n')
-        result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId )
+        result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId , return_type)
         if traceflag:
           logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
           print ('\ntask details')
           print(pp_json(logs))
           print ('\nend task details')
-        return result
+        task_response.taskId = taskId
+        task_response.content = result
+        if extended_response:
+          return task_response
+        else:
+          return result
     except:
         print(result)
         return
