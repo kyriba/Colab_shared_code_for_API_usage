@@ -12,6 +12,8 @@ import copy
 class AuthenticationError(Exception):
     pass
 
+
+
 def login():
     cfg = pd.read_csv("/content/config.csv")
     client_id = cfg['client_id'].values[0]
@@ -33,7 +35,7 @@ def login():
         response = r.json()
         token = response['access_token']
         # Put token in the session
-        print(token)
+        print('token ' + token)
         return token
     except Exception as err:
         try:
@@ -42,6 +44,21 @@ def login():
            message = str(r.status_code)+" "+r.reason
         raise AuthenticationError(message)
 
+class Token:
+  token = ''
+  def __init__(self):
+    raise Exception("Cannot create an istance")
+
+  @staticmethod
+  def updateToken():
+    Token.token = login()
+
+  @staticmethod
+  def getToken():
+    if Token.token == '':
+       Token.updateToken()
+    return Token.token
+
 #@title Get Results
 #@markdown This code calls the end point to retrieve data.
 #@markdown A result will by return as text response body when return_type is not set up or is 'text'. When return_type set as 'binary'
@@ -49,6 +66,7 @@ def login():
 
 def get_results(token, request, return_type = 'text'):
     try:
+        token = Token.getToken()
         headers = {"Authorization": "Bearer " + token}
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -61,6 +79,13 @@ def get_results(token, request, return_type = 'text'):
           else:
             print("return_type is incorrect")
             return
+        elif result.status_code == 401:
+          err = js.loads(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            Token.updateToken()
+            return get_results(Token.getToken(), request)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
@@ -72,6 +97,7 @@ def get_results(token, request, return_type = 'text'):
 #@markdown This code allows to POST data in payload or as a stream
 def post_results(token, request, payload, files, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -79,6 +105,13 @@ def post_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          err = js.loads(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            Token.updateToken()
+            return post_results(Token.getToken(), request, payload, files, headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
@@ -91,6 +124,7 @@ def post_results(token, request, payload, files, headers = {}):
 #@markdown This code allows to PUT data in payload or as a stream
 def put_results(token, request, payload, files, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -98,6 +132,13 @@ def put_results(token, request, payload, files, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          err = js.loads(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            Token.updateToken()
+            return put_results(Token.getToken(), request, payload, files, headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
@@ -109,6 +150,7 @@ def put_results(token, request, payload, files, headers = {}):
 #@markdown This code calls the end point to DELETE data
 def delete_results(token, request, headers = {}):
     try:
+        token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
@@ -116,6 +158,13 @@ def delete_results(token, request, headers = {}):
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
+        elif result.status_code == 401:
+          err = js.loads(result.text)
+          if 'error' in err and err['error'] == 'invalid_token':
+            Token.updateToken()
+            return delete_results(Token.getToken(), headers)
+          else:
+            print(result.text)
         else:
           print(result.text)
           return
