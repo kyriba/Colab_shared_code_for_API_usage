@@ -306,7 +306,7 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
 def pp_json(json_thing, sort=False, indents=2):
     res = ''
     if type(json_thing) is str:
-      print(js.dumps(js.loads(json_thing), sort_keys=sort, indent=indents))
+      print(js.dumps(js.loads(json_thing), ensure_ascii = False, sort_keys=sort, indent=indents))
     else:
-      print(js.dumps(json_thing, sort_keys=sort, indent=indents))
+      print(js.dumps(json_thing, ensure_ascii = False, sort_keys=sort, indent=indents))
     return res
