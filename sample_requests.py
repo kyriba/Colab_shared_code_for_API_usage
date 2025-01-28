@@ -12,10 +12,19 @@ import copy
 class AuthenticationError(Exception):
     pass
 
-
+def check_if_confid_updated(data):
+    updated = True
+    for row in data:
+        if not row[2].startswith('https://auth.'):
+          updated = False
+        if not row[3].startswith('https://api.'):
+          updated = False
+    if updated == False:
+      print('Warning! Update config.csv with new token_url and base_url to avoid errors.')
 
 def login():
     cfg = pd.read_csv("/content/config.csv")
+    check_if_confid_updated(cfg)
     client_id = cfg['client_id'].values[0]
     client_secret = cfg['client_secret'].values[0]
     token_endpoint = cfg['token_url'].values[0]
