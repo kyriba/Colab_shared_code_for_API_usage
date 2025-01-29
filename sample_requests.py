@@ -18,12 +18,20 @@ def switch_from_legacy_to_gravitee():
         data = [row for row in reader]
 
     for row in data:
-        row[2] = re.sub(r'^https://(?!auth\.)', 'https://auth.', row[2]).replace('/gravitee', '')
-        row[3] = re.sub(r'^https://(?!api\.)', 'https://api.', row[3]).replace('/gravitee', '')
+      row[2] = re.sub(r'^https://(?!auth\.)', 'https://auth.', row[2]).replace('/gateway', '')
+      row[3] = re.sub(r'^https://(?!api\.)', 'https://api.', row[3]).replace('/gateway', '')
 
     with open('/content/config.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(data)
+
+def print_updated_urls():
+    cfg = pd.read_csv("/content/config.csv")
+
+    token_endpoint = cfg['token_url'].values[0]
+    base_url = cfg['base_url'].values[0]
+    print("- Token URL: " + token_endpoint)
+    print("- Base URL: " + base_url)
 
 def check_if_confid_updated(data):
     updated = True
@@ -36,8 +44,7 @@ def check_if_confid_updated(data):
       switch_from_legacy_to_gravitee()
       print("Warning: Deprecated URLs detected in config.csv!")
       print("The following URLs have been automatically updated:")
-      print("- Token URL: " + data['token_url'].values[0])
-      print("- Base URL: " + data['base_url'].values[0])
+      print_updated_urls()
       print("These changes are not saved. Please update config.csv manually on your computer.")
 
 
