@@ -12,6 +12,19 @@ import copy
 class AuthenticationError(Exception):
     pass
 
+def switch_from_legacy_to_gravitee():
+    with open('/content/config.csv', mode='r') as file:
+        reader = csv.reader(file)
+        data = [row for row in reader]
+
+    for row in data:
+        row[2] = re.sub(r'^https://(?!auth\.)', 'https://auth.', row[2]).replace('/gravitee', '')
+        row[3] = re.sub(r'^https://(?!api\.)', 'https://api.', row[3]).replace('/gravitee', '')
+
+    with open('/content/config.csv', mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
+
 def check_if_confid_updated(data):
     updated = True
     for row in data:
@@ -20,7 +33,13 @@ def check_if_confid_updated(data):
         if not row[3].startswith('https://api.'):
           updated = False
     if updated == False:
-      print('Warning! Update config.csv with new token_url and base_url to avoid errors.')
+      switch_from_legacy_to_gravitee()
+      print("Warning: Deprecated URLs detected in config.csv!")
+      print("The following URLs have been automatically updated:")
+      print("- Token URL: " + data['token_url'].values[0])
+      print("- Base URL: " + data['base_url'].values[0])
+      print("These changes are not saved. Please update config.csv manually on your computer.")
+
 
 def login():
     cfg = pd.read_csv("/content/config.csv")
