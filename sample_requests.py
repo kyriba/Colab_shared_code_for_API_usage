@@ -35,11 +35,10 @@ def print_updated_urls():
 
 def check_if_confid_updated(data):
     updated = True
-    for row in data:
-        if not row[2].startswith('https://auth.'):
-          updated = False
-        if not row[3].startswith('https://api.'):
-          updated = False
+    if not data['token_url'].values[0].startswith('https://auth.'):
+      updated = False
+    if not data['base_url'].values[0].startswith('https://api.'):
+      updated = False
     if updated == False:
       switch_from_legacy_to_gravitee()
       print("Warning: Deprecated URLs detected in config.csv!")
