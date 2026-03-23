@@ -6,6 +6,14 @@ import pandas as pd
 from io import StringIO
 import csv
 import copy
+import time
+import logging
+from urllib.parse import urljoin
+
+logger = logging.getLogger(__name__)
+
+# Maximum number of automatic token refresh retries to prevent infinite recursion
+_MAX_TOKEN_REFRESH_RETRIES = 3
 
 #@title Token generation
 #@markdown This code calls the token end point with client-id and secret
@@ -30,24 +38,23 @@ def login():
         'Authorization': auth_header
     }
 
-    r = requests.post(token_endpoint, headers=headers, data=data)
+    r = requests.post(token_endpoint, headers=headers, data=data, timeout=30)
     try:
         response = r.json()
         token = response['access_token']
-        # Put token in the session
-        print('token ' + token)
+        logger.debug('Token acquired successfully')
         return token
-    except Exception as err:
+    except (KeyError, ValueError) as err:
         try:
            message = str(r.status_code)+" "+r.json()['message']
-        except:
+        except (KeyError, ValueError):
            message = str(r.status_code)+" "+r.reason
         raise AuthenticationError(message)
 
 class Token:
   token = ''
   def __init__(self):
-    raise Exception("Cannot create an istance")
+    raise Exception("Cannot create an instance")
 
   @staticmethod
   def updateToken():
@@ -64,13 +71,13 @@ class Token:
 #@markdown A result will by return as text response body when return_type is not set up or is 'text'. When return_type set as 'binary'
 #@markdown the result will be in binary representation.
 
-def get_results(token, request, return_type = 'text'):
+def get_results(token, request, return_type = 'text', _retry_count=0):
     try:
         token = Token.getToken()
         headers = {"Authorization": "Bearer " + token}
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
-        result = requests.get(base_url + request, headers=headers)
+        result = requests.get(urljoin(base_url, request), headers=headers, timeout=30)
         if 200 <= result.status_code < 300:
           if return_type == 'text':
             return result.text
@@ -82,94 +89,102 @@ def get_results(token, request, return_type = 'text'):
         elif result.status_code == 401:
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
+            if _retry_count >= _MAX_TOKEN_REFRESH_RETRIES:
+              raise AuthenticationError("Max token refresh retries exceeded")
             Token.updateToken()
-            return get_results(Token.getToken(), request)
+            return get_results(Token.getToken(), request, return_type, _retry_count + 1)
           else:
             print(result.text)
         else:
           print(result.text)
           return
-    except:
-        print(result)
+    except requests.RequestException as e:
+        logger.error("Request failed: %s", e)
         return
 
 #@title Post results
 #@markdown This code allows to POST data in payload or as a stream
-def post_results(token, request, payload, files, headers = {}):
+def post_results(token, request, payload, files, headers = {}, _retry_count=0):
     try:
         token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
-        result = requests.post(base_url + request, headers=headers, data=payload, files = files)
+        result = requests.post(urljoin(base_url, request), headers=headers, data=payload, files = files, timeout=30)
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
+            if _retry_count >= _MAX_TOKEN_REFRESH_RETRIES:
+              raise AuthenticationError("Max token refresh retries exceeded")
             Token.updateToken()
-            return post_results(Token.getToken(), request, payload, files, headers)
+            return post_results(Token.getToken(), request, payload, files, headers, _retry_count + 1)
           else:
             print(result.text)
         else:
           print(result.text)
           return
-    except:
-        print(result)
+    except requests.RequestException as e:
+        logger.error("Request failed: %s", e)
         return
 
 
 #@title Put results
 #@markdown This code allows to PUT data in payload or as a stream
-def put_results(token, request, payload, files, headers = {}):
+def put_results(token, request, payload, files, headers = {}, _retry_count=0):
     try:
         token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
-        result = requests.put(base_url + request, headers=headers, data=payload, files = files)
+        result = requests.put(urljoin(base_url, request), headers=headers, data=payload, files = files, timeout=30)
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
+            if _retry_count >= _MAX_TOKEN_REFRESH_RETRIES:
+              raise AuthenticationError("Max token refresh retries exceeded")
             Token.updateToken()
-            return put_results(Token.getToken(), request, payload, files, headers)
+            return put_results(Token.getToken(), request, payload, files, headers, _retry_count + 1)
           else:
             print(result.text)
         else:
           print(result.text)
           return
-    except:
-        print(result)
+    except requests.RequestException as e:
+        logger.error("Request failed: %s", e)
         return
 
 #@title Delete Results
 #@markdown This code calls the end point to DELETE data
-def delete_results(token, request, headers = {}):
+def delete_results(token, request, headers = {}, _retry_count=0):
     try:
         token = Token.getToken()
         headers["Authorization"] = "Bearer " + token
         cfg = pd.read_csv("config.csv")
         base_url = cfg['base_url'].values[0]
-        result = requests.delete(base_url + request, headers=headers)
+        result = requests.delete(urljoin(base_url, request), headers=headers, timeout=30)
         if 200 <= result.status_code < 300:
           json_data = js.loads(result.text)
           return json_data
         elif result.status_code == 401:
           err = js.loads(result.text)
           if 'error' in err and err['error'] == 'invalid_token':
+            if _retry_count >= _MAX_TOKEN_REFRESH_RETRIES:
+              raise AuthenticationError("Max token refresh retries exceeded")
             Token.updateToken()
-            return delete_results(Token.getToken(), headers)
+            return delete_results(Token.getToken(), request, headers, _retry_count + 1)
           else:
             print(result.text)
         else:
           print(result.text)
           return
-    except:
-        print(result)
+    except requests.RequestException as e:
+        logger.error("Request failed: %s", e)
         return
 
 
@@ -205,7 +220,7 @@ def run_report(token, report, traceflag = False, return_type = 'text', extended_
             if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 task_response.status = status
                 break
-                time.sleep(1)
+            time.sleep(1)
         print('\n')
         result = get_results(token, '/v1/process-templates/'+ report + '/files?taskId=' + taskId , return_type)
         if traceflag:
@@ -219,8 +234,8 @@ def run_report(token, report, traceflag = False, return_type = 'text', extended_
           return task_response
         else:
           return result
-    except:
-        print(result)
+    except (requests.RequestException, KeyError, TypeError, ValueError) as e:
+        logger.error("Report execution failed: %s", e)
         return
 
 #@title Launch process
@@ -242,15 +257,15 @@ def run_process(token, report, traceflag = False):
                 print ('\n' + status)
             if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
                 break
-                time.sleep(1)
+            time.sleep(1)
         if traceflag:
           logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
           print ('\ntask details')
           print(pp_json(logs))
           print ('\nend task details')
         return result
-    except:
-        print(result)
+    except (requests.RequestException, KeyError, TypeError, ValueError) as e:
+        logger.error("Process execution failed: %s", e)
         return
 
 #@title Import Data
@@ -291,14 +306,15 @@ def import_data (token, data, filename, task, isPayload, traceflag = False):
             print ('\n' + status)
         if status == "Warning" or status == "Complete" or status == "Error" or status == "Cancelled":
             break
-            time.sleep(1)
+        time.sleep(1)
       if traceflag:
         logs = get_results(token, '/v1/process-templates/' + taskId + '/details')
         print ('\ntask details')
         print(pp_json(logs))
         print ('\nend task details')
       return result
-  except:
+  except (requests.RequestException, KeyError, TypeError, ValueError) as e:
+    logger.error("Import failed: %s", e)
     return 'error'
 
 #@title Pretty print
